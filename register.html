@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InternConnect - Register</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #f3eeff; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .register-box { background: white; padding: 40px; border-radius: 16px; width: 380px; box-shadow: 0 4px 20px rgba(108,63,168,0.15); text-align: center; }
+    h1 { color: #6C3FA8; font-size: 28px; margin-bottom: 8px; }
+    p { color: #888; margin-bottom: 24px; }
+    input { width: 100%; padding: 12px; margin-bottom: 16px; border: 2px solid #6C3FA8; border-radius: 8px; font-size: 14px; outline: none; }
+    input:focus { border-color: #9B59B6; }
+    button { width: 100%; padding: 12px; background: #6C3FA8; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
+    button:hover { background: #9B59B6; }
+    .login-link { margin-top: 16px; color: #6C3FA8; font-size: 14px; cursor: pointer; }
+    .login-link:hover { text-decoration: underline; }
+    .success-msg { display: none; color: green; margin-top: 12px; font-size: 14px; }
+    .error-msg { color: red; font-size: 13px; margin-bottom: 12px; display: none; }
+  </style>
+</head>
+<body>
+  <div class="register-box">
+    <h1>InternConnect</h1>
+    <p>Create your account!</p>
+    <p class="error-msg" id="errorMsg"></p>
+
+    <input type="text" placeholder="Full Name" id="fullname">
+    <input type="email" placeholder="Email" id="email">
+    <input type="tel" placeholder="Phone Number" id="phone">
+    <input type="password" placeholder="Password" id="password">
+    <input type="password" placeholder="Confirm Password" id="confirmPassword">
+
+    <button onclick="register()">REGISTER</button>
+
+    <p class="success-msg" id="successMsg">✅ Account created! Redirecting...</p>
+    <p class="login-link" onclick="window.location.href='index.html'">Already have an account? Login</p>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAw3pj2m8FNq3KjmraxCNdWPzjzCY941Wc",
+      authDomain: "internconnect-f2737.firebaseapp.com",
+      projectId: "internconnect-f2737",
+      storageBucket: "internconnect-f2737.firebasestorage.app",
+      messagingSenderId: "910856257450",
+      appId: "1:910856257450:web:df53a0e2dc7a7e7b21b5d3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    window.register = function() {
+      const fullname = document.getElementById('fullname').value;
+      const email = document.getElementById('email').value;
+      const phone = document.getElementById('phone').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const errorMsg = document.getElementById('errorMsg');
+
+      if(!fullname || !email || !phone || !password || !confirmPassword) {
+        errorMsg.textContent = 'Please fill all fields!';
+        errorMsg.style.display = 'block';
+        return;
+      }
+
+      if(password !== confirmPassword) {
+        errorMsg.textContent = 'Passwords do not match!';
+        errorMsg.style.display = 'block';
+        return;
+      }
+
+      if(password.length < 6) {
+        errorMsg.textContent = 'Password must be at least 6 characters!';
+        errorMsg.style.display = 'block';
+        return;
+      }
+
+      createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          // Save extra user info to Firestore
+          return setDoc(doc(db, "users", user.uid), {
+            fullname: fullname,
+            email: email,
+            phone: phone
+          });
+        })
+        .then(() => {
+          document.getElementById('successMsg').style.display = 'block';
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 2000);
+        })
+        .catch((error) => {
+          errorMsg.textContent = error.message;
+          errorMsg.style.display = 'block';
+        });
+    }
+  </script>
+</body>
+</html>

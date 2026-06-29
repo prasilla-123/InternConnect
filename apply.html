@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InternConnect - Apply</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #f3eeff; }
+    .navbar { background: #6C3FA8; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
+    .navbar h1 { color: white; font-size: 22px; }
+    .back-btn { color: white; font-size: 16px; cursor: pointer; background: none; border: none; }
+    .apply-box { background: white; margin: 24px; border-radius: 16px; padding: 30px; box-shadow: 0 4px 20px rgba(108,63,168,0.15); }
+    .apply-box h2 { color: #6C3FA8; font-size: 22px; margin-bottom: 4px; text-align: center; }
+    .apply-box p.sub { color: #888; text-align: center; margin-bottom: 24px; font-size: 14px; }
+    input, textarea { width: 100%; padding: 12px; margin-bottom: 16px; border: 2px solid #6C3FA8; border-radius: 8px; font-size: 14px; outline: none; font-family: Arial; }
+    textarea { resize: none; height: 80px; }
+    button { width: 100%; padding: 14px; background: #6C3FA8; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
+    button:hover { background: #9B59B6; }
+    .success-msg { display: none; color: green; margin-top: 16px; font-size: 14px; text-align: center; }
+    .error-msg { color: red; font-size: 13px; margin-bottom: 12px; display: none; text-align: center; }
+  </style>
+</head>
+<body>
+
+  <div class="navbar">
+    <button class="back-btn" onclick="history.back()">← Back</button>
+    <h1>InternConnect</h1>
+    <span></span>
+  </div>
+
+  <div class="apply-box">
+    <h2 id="formTitle">Apply for Internship</h2>
+    <p class="sub" id="formSub">Fill the details below</p>
+    <p class="error-msg" id="errorMsg"></p>
+
+    <input type="text" placeholder="Full Name" id="fullname">
+    <input type="email" placeholder="Email" id="email">
+    <input type="tel" placeholder="Phone Number" id="phone">
+    <textarea placeholder="Why should we hire you? (Short note)" id="message"></textarea>
+
+    <button onclick="submitApplication()">SUBMIT APPLICATION</button>
+
+    <p class="success-msg" id="successMsg">✅ Application submitted successfully!</p>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAw3pj2m8FNq3KjmraxCNdWPzjzCY941Wc",
+      authDomain: "internconnect-f2737.firebaseapp.com",
+      projectId: "internconnect-f2737",
+      storageBucket: "internconnect-f2737.firebasestorage.app",
+      messagingSenderId: "910856257450",
+      appId: "1:910856257450:web:df53a0e2dc7a7e7b21b5d3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let company = 'Company';
+    let role = 'Internship';
+
+    window.onload = function() {
+      const params = new URLSearchParams(window.location.search);
+      company = params.get('company') || 'Company';
+      role = params.get('role') || 'Internship';
+
+      document.getElementById('formTitle').textContent = 'Apply to ' + company;
+      document.getElementById('formSub').textContent = role;
+    };
+
+    window.submitApplication = async function() {
+      const fullname = document.getElementById('fullname').value;
+      const email = document.getElementById('email').value;
+      const phone = document.getElementById('phone').value;
+      const message = document.getElementById('message').value;
+      const errorMsg = document.getElementById('errorMsg');
+
+      if(!fullname || !email || !phone) {
+        errorMsg.textContent = 'Please fill all required fields!';
+        errorMsg.style.display = 'block';
+        return;
+      }
+
+      try {
+        await addDoc(collection(db, "applications"), {
+          fullname: fullname,
+          email: email,
+          phone: phone,
+          message: message,
+          company: company,
+          role: role,
+          appliedAt: serverTimestamp()
+        });
+
+        document.getElementById('successMsg').style.display = 'block';
+        errorMsg.style.display = 'none';
+
+        setTimeout(() => {
+          window.location.href = 'home.html';
+        }, 2000);
+
+      } catch (error) {
+        errorMsg.textContent = 'Error: ' + error.message;
+        errorMsg.style.display = 'block';
+      }
+    }
+  </script>
+
+</body>
+</html>

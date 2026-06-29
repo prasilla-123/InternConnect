@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InternConnect - Detail</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #f3eeff; }
+    .navbar { background: #6C3FA8; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
+    .navbar h1 { color: white; font-size: 22px; }
+    .back-btn { color: white; font-size: 16px; cursor: pointer; background: none; border: none; }
+    .detail-card { background: white; margin: 24px; border-radius: 16px; padding: 28px; box-shadow: 0 4px 20px rgba(108,63,168,0.15); }
+    .company-name { color: #6C3FA8; font-size: 28px; font-weight: bold; margin-bottom: 8px; }
+    .role { color: #333; font-size: 18px; margin-bottom: 20px; }
+    .info-tags { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+    .tag { background: #f3eeff; color: #6C3FA8; padding: 8px 16px; border-radius: 20px; font-size: 13px; border: 1px solid #6C3FA8; }
+    .section { margin-bottom: 20px; }
+    .section h3 { color: #6C3FA8; font-size: 16px; margin-bottom: 10px; border-bottom: 2px solid #f3eeff; padding-bottom: 6px; }
+    .section p { color: #555; font-size: 14px; line-height: 1.7; }
+    .section ul { color: #555; font-size: 14px; line-height: 1.7; padding-left: 20px; }
+    .apply-btn { width: 100%; padding: 14px; background: #6C3FA8; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; margin-top: 10px; }
+    .apply-btn:hover { background: #9B59B6; }
+  </style>
+</head>
+<body>
+
+  <div class="navbar">
+    <button class="back-btn" onclick="window.location.href='home.html'">← Back</button>
+    <h1>InternConnect</h1>
+    <span></span>
+  </div>
+
+  <div class="detail-card">
+    <div class="company-name" id="companyName"></div>
+    <div class="role" id="roleName"></div>
+    <div class="info-tags">
+      <span class="tag" id="locationTag"></span>
+      <span class="tag" id="stipendTag"></span>
+      <span class="tag" id="durationTag"></span>
+      <span class="tag" id="typeTag"></span>
+    </div>
+    <div class="section">
+      <h3>About the Role</h3>
+      <p id="aboutRole"></p>
+    </div>
+    <div class="section">
+      <h3>Requirements</h3>
+      <ul>
+        <li>Strong problem-solving skills</li>
+        <li>Knowledge of Python / Java / JavaScript</li>
+        <li>Good communication skills</li>
+        <li>Currently pursuing B.Tech / BCA / MCA</li>
+      </ul>
+    </div>
+    <div class="section">
+      <h3>Perks & Benefits</h3>
+      <ul>
+        <li>💰 Paid Internship</li>
+        <li>📜 Certificate of completion</li>
+        <li>🏆 Letter of Recommendation</li>
+        <li>💼 Full time offer possibility</li>
+      </ul>
+    </div>
+    <button class="apply-btn" id="applyBtn">APPLY NOW</button>
+  </div>
+
+  <script>
+    window.onload = function() {
+      const search = window.location.search;
+      const params = new URLSearchParams(search);
+
+      const company = params.get('company');
+      const role = params.get('role');
+      const location = params.get('location');
+      const stipend = params.get('stipend');
+      const duration = params.get('duration');
+      const type = params.get('type');
+
+      document.getElementById('companyName').textContent = company;
+      document.getElementById('roleName').textContent = role;
+      document.getElementById('locationTag').textContent = '📍 ' + location;
+      document.getElementById('stipendTag').textContent = '💰 ₹' + stipend + '/month';
+      document.getElementById('durationTag').textContent = '📅 ' + duration;
+      document.getElementById('typeTag').textContent = '🕐 ' + type;
+
+      const aboutTexts = {
+        'Google': 'Join Google and work on exciting projects that impact millions of users worldwide. Collaborate with senior engineers and contribute to real products.',
+        'ZOHO': 'Join ZOHO and design beautiful user interfaces. Work with the design team to create stunning UX experiences for millions of users.',
+        'TCS': 'Join TCS and work on cutting-edge Data Science projects. Analyze real-world data and build machine learning models.',
+        'Freshworks': 'Join Freshworks and create impactful digital marketing campaigns. Work with the marketing team on social media and content strategy.'
+      };
+
+      document.getElementById('aboutRole').textContent = aboutTexts[company] || 'Exciting internship opportunity!';
+
+      document.getElementById('applyBtn').onclick = function() {
+        window.location.href = 'apply.html?company=' + encodeURIComponent(company) + '&role=' + encodeURIComponent(role);
+      };
+    };
+  </script>
+
+</body>
+</html>

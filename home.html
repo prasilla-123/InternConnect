@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InternConnect - Home</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #f3eeff; }
+    .navbar { background: #6C3FA8; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
+    .navbar h1 { color: white; font-size: 22px; }
+    .navbar span { color: white; font-size: 14px; cursor: pointer; }
+    .search-section { padding: 20px 24px; }
+    .search-section input { width: 100%; padding: 12px 16px; border: 2px solid #6C3FA8; border-radius: 10px; font-size: 15px; outline: none; }
+    .filters { display: flex; gap: 10px; padding: 0 24px 16px; flex-wrap: wrap; }
+    .filter-btn { padding: 8px 20px; border: none; border-radius: 20px; background: #6C3FA8; color: white; cursor: pointer; font-size: 13px; }
+    .filter-btn:hover { background: #9B59B6; }
+    .cards { padding: 0 24px 24px; display: flex; flex-direction: column; gap: 16px; }
+    .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 12px rgba(108,63,168,0.1); border-left: 4px solid #6C3FA8; }
+    .card h2 { color: #6C3FA8; font-size: 18px; margin-bottom: 4px; text-transform: capitalize; }
+    .card h3 { color: #333; font-size: 15px; margin-bottom: 8px; text-transform: capitalize; }
+    .card p { color: #666; font-size: 13px; margin-bottom: 12px; }
+    .apply-btn { padding: 8px 20px; background: #6C3FA8; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; }
+    .apply-btn:hover { background: #9B59B6; }
+    .loading { text-align: center; padding: 40px; color: #6C3FA8; }
+    .no-results { text-align: center; padding: 40px; color: #888; }
+  </style>
+</head>
+<body>
+
+  <div class="navbar">
+    <h1>InternConnect</h1>
+    <span onclick="window.location.href='index.html'">Logout</span>
+  </div>
+
+  <div class="search-section">
+    <input type="text" placeholder="🔍 Search Internships..." id="searchInput" onkeyup="searchInternships()">
+  </div>
+
+  <div class="filters">
+    <button class="filter-btn" onclick="filterCards('IT')">IT</button>
+    <button class="filter-btn" onclick="filterCards('Design')">Design</button>
+    <button class="filter-btn" onclick="filterCards('Marketing')">Marketing</button>
+    <button class="filter-btn" onclick="filterCards('All')">All</button>
+  </div>
+
+  <div class="cards" id="cardsContainer">
+    <div class="loading">Loading internships...</div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAw3pj2m8FNq3KjmraxCNdWPzjzCY941Wc",
+      authDomain: "internconnect-f2737.firebaseapp.com",
+      projectId: "internconnect-f2737",
+      storageBucket: "internconnect-f2737.firebasestorage.app",
+      messagingSenderId: "910856257450",
+      appId: "1:910856257450:web:df53a0e2dc7a7e7b21b5d3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let allInternships = [];
+
+    async function loadInternships() {
+      const container = document.getElementById('cardsContainer');
+      try {
+        const snapshot = await getDocs(collection(db, "internships"));
+        allInternships = [];
+
+        snapshot.forEach((doc) => {
+          allInternships.push({ id: doc.id, ...doc.data() });
+        });
+
+        renderCards(allInternships);
+      } catch (error) {
+        container.innerHTML = '<div class="no-results">Error loading internships: ' + error.message + '</div>';
+      }
+    }
+
+    function renderCards(internships) {
+      const container = document.getElementById('cardsContainer');
+
+      if(internships.length === 0) {
+        container.innerHTML = '<div class="no-results">No internships found 😔</div>';
+        return;
+      }
+
+      container.innerHTML = '';
+
+      internships.forEach((item) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <h2>${item.company}</h2>
+          <h3>${item.role}</h3>
+          <p>📍 ${item.location} | 💰 ₹${item.stipend}/month | 📅 ${item.duration} | 🕐 ${item.type}</p>
+          <button class="apply-btn" onclick="goToDetail('${item.company}', '${item.role}', '${item.location}', '${item.stipend}', '${item.duration}', '${item.type}')">View Details</button>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    window.goToDetail = function(company, role, location, stipend, duration, type) {
+      window.location.href = `detail.html?company=${encodeURIComponent(company)}&role=${encodeURIComponent(role)}&location=${encodeURIComponent(location)}&stipend=${encodeURIComponent(stipend)}&duration=${encodeURIComponent(duration)}&type=${encodeURIComponent(type)}`;
+    }
+
+    window.searchInternships = function() {
+      const input = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = allInternships.filter(item => 
+        item.company.toLowerCase().includes(input) || 
+        item.role.toLowerCase().includes(input) ||
+        item.location.toLowerCase().includes(input)
+      );
+      renderCards(filtered);
+    }
+
+    window.filterCards = function(category) {
+      // Simple category mapping based on role keywords
+      if(category === 'All') {
+        renderCards(allInternships);
+        return;
+      }
+      const filtered = allInternships.filter(item => {
+        const role = item.role.toLowerCase();
+        if(category === 'IT') return role.includes('software') || role.includes('data') || role.includes('developer');
+        if(category === 'Design') return role.includes('design') || role.includes('ui') || role.includes('ux');
+        if(category === 'Marketing') return role.includes('marketing');
+        return false;
+      });
+      renderCards(filtered);
+    }
+
+    // Load internships when page loads
+    loadInternships();
+  </script>
+
+</body>
+</html>

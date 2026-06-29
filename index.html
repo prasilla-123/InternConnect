@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InternConnect</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #f3eeff; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    .login-box { background: white; padding: 40px; border-radius: 16px; width: 350px; box-shadow: 0 4px 20px rgba(108,63,168,0.15); text-align: center; }
+    h1 { color: #6C3FA8; font-size: 28px; margin-bottom: 8px; }
+    p { color: #888; margin-bottom: 24px; }
+    input { width: 100%; padding: 12px; margin-bottom: 16px; border: 2px solid #6C3FA8; border-radius: 8px; font-size: 14px; outline: none; }
+    button { width: 100%; padding: 12px; background: #6C3FA8; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
+    button:hover { background: #9B59B6; }
+    .register { margin-top: 16px; color: #6C3FA8; font-size: 14px; cursor: pointer; }
+    .error-msg { color: red; font-size: 13px; margin-bottom: 12px; display: none; }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h1>InternConnect</h1>
+    <p>Welcome Back!</p>
+    <p class="error-msg" id="errorMsg"></p>
+    <input type="email" placeholder="Email" id="email">
+    <input type="password" placeholder="Password" id="password">
+    <button onclick="login()">LOGIN</button>
+    <p class="register" onclick="window.location.href='register.html'">Don't have an account? Register</p>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    // Your Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyAw3pj2m8FNq3KjmraxCNdWPzjzCY941Wc",
+      authDomain: "internconnect-f2737.firebaseapp.com",
+      projectId: "internconnect-f2737",
+      storageBucket: "internconnect-f2737.firebasestorage.app",
+      messagingSenderId: "910856257450",
+      appId: "1:910856257450:web:df53a0e2dc7a7e7b21b5d3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    window.login = function() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errorMsg = document.getElementById('errorMsg');
+
+      if(!email || !password) {
+        errorMsg.textContent = 'Please enter email and password!';
+        errorMsg.style.display = 'block';
+        return;
+      }
+
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          window.location.href = 'home.html';
+        })
+        .catch((error) => {
+          errorMsg.textContent = 'Invalid email or password!';
+          errorMsg.style.display = 'block';
+        });
+    }
+  </script>
+</body>
+</html>
